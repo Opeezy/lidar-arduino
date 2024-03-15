@@ -1,4 +1,4 @@
-package serial
+package main
 
 import (
 	"errors"
@@ -36,7 +36,7 @@ func (s *Serial) openPortConnection() error {
 			return nil
 		}
 	} else {
-		err := errors.New("No config made")
+		err := errors.New("no config made")
 		return err
 	}
 }
