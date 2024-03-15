@@ -1,9 +1,10 @@
 package main
 
 import (
-	"lidar-arduino/serial"
 	"log"
 	"time"
+
+	"github.com/Opeezy/lidar-arduino/serial"
 )
 
 func main() {
