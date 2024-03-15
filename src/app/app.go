@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -19,6 +20,7 @@ type SerialWorker interface {
 	openPortConnection()
 	makeConfig()
 	listen()
+	read()
 }
 
 func (s *Serial) openPortConnection() error {
@@ -52,16 +54,41 @@ func (s *Serial) listen(duration time.Duration) {
 	} else if !s.portOpen {
 		log.Fatalln("No port connection")
 	} else {
+		log.Println("Reading serial data")
 		// Get the current time
 		timeNow := time.Now()
 
+		data := make(chan []byte)
+		s.readSerial(data)
+		s.writeToFile(data)
+		// TODO: Call a go routine to read from the serial port and pass to channel
+		// TODO: Call a go routine that takes data from channel and writes to file
 		for {
 			// Check for duration and read serial data until it is reached
 			if time.Since(timeNow) >= duration {
 				log.Fatalln("5 seconds passed")
+				break
 			}
 		}
 	}
+}
+
+func (s *Serial) readSerial(c chan []byte) {
+	buf := make([]byte, 47) // 47 byte buffer (the size of our lidar packets come out to 47 bytes)
+
+	i, _ := s.port.Read(buf) // Read incoming serial data into buffer
+	_ = i
+
+	// Check first two bytes as they are always static. 0x54 and 0x2C indicate a complete packet
+	if buf[0] == 0x54 && buf[1] == 0x2C {
+		c <- buf // Send our packet to channel
+	}
+
+}
+
+func (s *Serial) writeToFile(c chan []byte) {
+	packet := <-c
+	fmt.Println(packet)
 }
 
 func main() {
