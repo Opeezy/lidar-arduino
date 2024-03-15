@@ -2,16 +2,17 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSerial(t *testing.T) {
-	TestSerial := NewSerial()
+func TestNewSerial(t *testing.T) {
+	TestSerial := NewSerial("COM5", 230400, 8, 1, time.Second*5)
 
-	ConfMade := false
-	PortOpen := false
+	ConfMade := true  // Should be a valid config
+	PortOpen := false // Port should be false as it hasn't been called
 
-	assert.Equal(t, TestSerial.ConfigMade, ConfMade, "ConfigMade should be false")
+	assert.Equal(t, TestSerial.ConfigMade, ConfMade, "ConfigMade should be true")
 	assert.Equal(t, TestSerial.PortOpen, PortOpen, "PortOpen should be false")
 }

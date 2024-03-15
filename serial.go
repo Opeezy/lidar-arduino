@@ -10,7 +10,12 @@ import (
 )
 
 type Serial struct {
-	Name       string         // Serial port name (eg. "COM5")
+	Name     string
+	Baud     int
+	Size     byte
+	StopBits serial.StopBits
+	Timeout  time.Duration
+
 	Config     *serial.Config // Serial config pointer
 	Port       *serial.Port   // Serial port pointer
 	ConfigMade bool           // Valid config status
@@ -41,12 +46,12 @@ func (s *Serial) OpenPortConnection() error {
 	}
 }
 
-func (s *Serial) MakeConfig(name string, baud int, size byte, stopbits serial.StopBits, timeout time.Duration) {
+func (s *Serial) MakeConfig() {
 	NewConfig := &serial.Config{
-		Name:        name,            // Port name (eg. "COM5")
-		Baud:        baud,            // Baudrate
-		Size:        size,            // Data size (usually 8 bytes)
-		StopBits:    stopbits,        // Stop bits (usually 1)
+		Name:        s.Name,          // Port name (eg. "COM5")
+		Baud:        s.Baud,          // Baudrate
+		Size:        s.Size,          // Data size (usually 8 bytes)
+		StopBits:    s.StopBits,      // Stop bits (usually 1)
 		ReadTimeout: time.Second * 5} // Timeout duration
 	s.Config = NewConfig
 	s.Name = NewConfig.Name
@@ -94,10 +99,17 @@ func (s *Serial) WriteToFile(c chan []byte) {
 	fmt.Println(packet)
 }
 
-func NewSerial() *Serial {
+func NewSerial(name string, baud int, size byte, stopbits serial.StopBits, timeout time.Duration) *Serial {
 	serial := &Serial{
+		Name:       name,
+		Baud:       baud,
+		Size:       size,
+		StopBits:   stopbits,
+		Timeout:    timeout,
 		ConfigMade: false,
 		PortOpen:   false,
 	}
+
+	serial.MakeConfig()
 	return serial
 }
