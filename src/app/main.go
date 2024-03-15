@@ -57,7 +57,7 @@ func (s *Serial) listen(duration time.Duration) {
 		log.Println("Reading serial data")
 		timeNow := time.Now() // Get the current time
 
-		data := make(chan []byte)
+		data := make(chan []byte) // Channel to pass our packets through
 
 		for {
 			// Check for duration and read serial data until it is reached
