@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -24,14 +25,19 @@ type SerialWorker interface {
 }
 
 func (s *Serial) openPortConnection() error {
-	port, err := serial.OpenPort(s.config)
-	s.port = port
-	if err != nil {
-		return err
+	if s.configMade {
+		port, err := serial.OpenPort(s.config)
+		s.port = port
+		if err != nil {
+			return err
+		} else {
+			log.Printf("Successfully opened port %v", s.name)
+			s.portOpen = true
+			return nil
+		}
 	} else {
-		log.Printf("Successfully opened port %v", s.name)
-		s.portOpen = true
-		return nil
+		err := errors.New("No config made")
+		return err
 	}
 }
 
@@ -98,13 +104,11 @@ func main() {
 	newSerial.makeConfig("COM5", 230400, 8, 1, timeOut)
 
 	// Check for valid config and attempt to open serial port connection
-	if newSerial.configMade {
-		err := newSerial.openPortConnection()
-		if err != nil {
-			log.Fatalln(err)
-		} else {
-			// If everything goes well, read incoming serial data...
-			newSerial.listen(time.Second * 10)
-		}
+	err := newSerial.openPortConnection()
+	if err != nil {
+		log.Fatalln(err)
+	} else {
+		// If everything goes well, read incoming serial data...
+		newSerial.listen(time.Second * 10)
 	}
 }
