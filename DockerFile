@@ -1,6 +1,6 @@
 FROM golang
 
-WORKDIR /src/app
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
@@ -9,3 +9,5 @@ RUN go mod download
 COPY *.go ./
 
 RUN CGO_ENABLED=0 GOOS=windows go build -o /lidar-arduino/src/app
+
+CMD ["/lidar-arduino/src/app"]
