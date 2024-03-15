@@ -10,29 +10,29 @@ import (
 )
 
 type Serial struct {
-	name       string         // Serial port name (eg. "COM5")
-	config     *serial.Config // Serial config pointer
-	port       *serial.Port   // Serial port pointer
-	configMade bool           // Valid config status
-	portOpen   bool           // Port connection status
+	Name       string         // Serial port name (eg. "COM5")
+	Config     *serial.Config // Serial config pointer
+	Port       *serial.Port   // Serial port pointer
+	ConfigMade bool           // Valid config status
+	PortOpen   bool           // Port connection status
 }
 
 type SerialWorker interface {
-	openPortConnection()
-	makeConfig()
-	listen()
-	read()
+	OpenPortConnection()
+	MakeConfig()
+	Listen()
+	Read()
 }
 
-func (s *Serial) openPortConnection() error {
-	if s.configMade {
-		port, err := serial.OpenPort(s.config)
-		s.port = port
+func (s *Serial) OpenPortConnection() error {
+	if s.ConfigMade {
+		port, err := serial.OpenPort(s.Config)
+		s.Port = port
 		if err != nil {
 			return err
 		} else {
-			log.Printf("Successfully opened port %v", s.name)
-			s.portOpen = true
+			log.Printf("Successfully opened port %v", s.Name)
+			s.PortOpen = true
 			return nil
 		}
 	} else {
@@ -41,46 +41,46 @@ func (s *Serial) openPortConnection() error {
 	}
 }
 
-func (s *Serial) makeConfig(name string, baud int, size byte, stopbits serial.StopBits, timeout time.Duration) {
-	newConfig := &serial.Config{
+func (s *Serial) MakeConfig(name string, baud int, size byte, stopbits serial.StopBits, timeout time.Duration) {
+	NewConfig := &serial.Config{
 		Name:        name,            // Port name (eg. "COM5")
 		Baud:        baud,            // Baudrate
 		Size:        size,            // Data size (usually 8 bytes)
 		StopBits:    stopbits,        // Stop bits (usually 1)
 		ReadTimeout: time.Second * 5} // Timeout duration
-	s.config = newConfig
-	s.name = newConfig.Name
-	s.configMade = true
+	s.Config = NewConfig
+	s.Name = NewConfig.Name
+	s.ConfigMade = true
 	log.Println("Config generated")
 }
 
-func (s *Serial) listen(duration time.Duration) {
-	if !s.configMade {
+func (s *Serial) Listen(duration time.Duration) {
+	if !s.ConfigMade {
 		log.Fatalln("No config made")
-	} else if !s.portOpen {
+	} else if !s.PortOpen {
 		log.Fatalln("No port connection")
 	} else {
 		log.Println("Reading serial data")
-		timeNow := time.Now() // Get the current time
+		TimeNow := time.Now() // Get the current time
 
 		data := make(chan []byte) // Channel to pass our packets through
 
 		for {
 			// Check for duration and read serial data until it is reached
-			if time.Since(timeNow) >= duration {
+			if time.Since(TimeNow) >= duration {
 				log.Fatalln("5 seconds passed")
 				break
 			}
-			go s.readSerial(data)
-			go s.writeToFile(data)
+			go s.ReadSerial(data)
+			go s.WriteToFile(data)
 		}
 	}
 }
 
-func (s *Serial) readSerial(c chan []byte) {
+func (s *Serial) ReadSerial(c chan []byte) {
 	buf := make([]byte, 47) // 47 byte buffer (the size of our lidar packets come out to 47 bytes)
 
-	i, _ := s.port.Read(buf) // Read incoming serial data into buffer
+	i, _ := s.Port.Read(buf) // Read incoming serial data into buffer
 	_ = i
 
 	// Check first two bytes as they are always static. 0x54 and 0x2C indicate a complete packet
@@ -89,7 +89,15 @@ func (s *Serial) readSerial(c chan []byte) {
 	}
 }
 
-func (s *Serial) writeToFile(c chan []byte) {
+func (s *Serial) WriteToFile(c chan []byte) {
 	packet := <-c
 	fmt.Println(packet)
+}
+
+func NewSerial() *Serial {
+	serial := &Serial{
+		ConfigMade: false,
+		PortOpen:   false,
+	}
+	return serial
 }
