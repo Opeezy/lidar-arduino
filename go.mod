@@ -1,4 +1,4 @@
-module app
+module github.com/Opeezy/lidar-arduino
 
 go 1.21.6
 
