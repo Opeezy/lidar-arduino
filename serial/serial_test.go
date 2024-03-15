@@ -1,4 +1,4 @@
-package serial
+package main
 
 import (
 	"testing"

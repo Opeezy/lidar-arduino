@@ -1,4 +1,4 @@
-module lidar-arduino/serial
+module github.com/Opeezy/lidar-arduino/serial
 
 go 1.21.6
 
