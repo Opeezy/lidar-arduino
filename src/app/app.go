@@ -55,20 +55,18 @@ func (s *Serial) listen(duration time.Duration) {
 		log.Fatalln("No port connection")
 	} else {
 		log.Println("Reading serial data")
-		// Get the current time
-		timeNow := time.Now()
+		timeNow := time.Now() // Get the current time
 
 		data := make(chan []byte)
-		s.readSerial(data)
-		s.writeToFile(data)
-		// TODO: Call a go routine to read from the serial port and pass to channel
-		// TODO: Call a go routine that takes data from channel and writes to file
+
 		for {
 			// Check for duration and read serial data until it is reached
 			if time.Since(timeNow) >= duration {
 				log.Fatalln("5 seconds passed")
 				break
 			}
+			go s.readSerial(data)
+			go s.writeToFile(data)
 		}
 	}
 }
@@ -83,7 +81,6 @@ func (s *Serial) readSerial(c chan []byte) {
 	if buf[0] == 0x54 && buf[1] == 0x2C {
 		c <- buf // Send our packet to channel
 	}
-
 }
 
 func (s *Serial) writeToFile(c chan []byte) {
@@ -107,7 +104,7 @@ func main() {
 			log.Fatalln(err)
 		} else {
 			// If everything goes well, read incoming serial data...
-			newSerial.listen(time.Second * 5)
+			newSerial.listen(time.Second * 10)
 		}
 	}
 }
