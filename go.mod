@@ -2,11 +2,9 @@ module main
 
 go 1.21.6
 
+require github.com/Opeezy/utils v0.0.0-20240316125608-2c82f6bd5032
+
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07 // indirect
 	golang.org/x/sys v0.18.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

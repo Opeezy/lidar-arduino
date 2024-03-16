@@ -4,12 +4,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/Opeezy/lidar-arduino/serial"
+	"github.com/Opeezy/utils"
 )
 
 func main() {
 	// Initialize our Serial component
-	Serial1 := serial.NewSerial("COM5", 230400, 8, 1, time.Second*5)
+	Serial1 := utils.NewSerial("COM5", 230400, 8, 1, time.Second*5)
 
 	// Check for valid config and attempt to open serial port connection
 	err := Serial1.OpenPortConnection()
